@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleEnum {
+  admin
+  user
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique @db.VarChar(255)
+  password   String
+  name       String?   @unique @db.VarChar(20)
+  bannedTime DateTime? @map("banned_time")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+  roles      Role[]
+
+  @@map(name: "tb_user")
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      RoleEnum @default(user)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map(name: "tb_user_role")
+}
